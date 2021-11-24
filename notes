@@ -1,0 +1,15 @@
+resources
+https://www.etechnophiles.com/raspberry-pi-3-gpio-pinout-pin-diagram-and-specs-in-detail-model-b/
+
+steps
+update raspbian
+install pigpio deamon - http://abyz.me.uk/rpi/pigpio/download.html
+install pip3 - https://projects.raspberrypi.org/en/projects/using-pip-on-raspberry-pi/4
+install gpiozero (Python 3+) - sudo pip3 install gpiozero
+run pigpio deamon - sudo pigpiod
+install rpi.pgio library (Python 3+) - sudo pip3 install rpi.gpio
+install mariadb server - https://pimylifeup.com/raspberry-pi-mysql/
+flush database privileges - flush privileges;
+create database and tables
+install mariadb library (Python 3+) - sudo pip3 install mariadb 
+install pigpio_dht library (Python 3+) - sudo pip3 install pigpio_dht 
