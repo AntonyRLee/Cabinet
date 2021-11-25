@@ -1,5 +1,5 @@
-https://pimylifeup.com/raspberry-pi-mysql/
-https://raspberrytips.com/install-mariadb-raspberry-pi/
+-- https://pimylifeup.com/raspberry-pi-mysql/
+-- https://raspberrytips.com/install-mariadb-raspberry-pi/
 
 CREATE DATABASE dht_series;
 
