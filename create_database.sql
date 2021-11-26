@@ -25,7 +25,7 @@ CREATE TABLE `dht_errors` (
 CREATE TABLE `dht_batch`(
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `batch_id` int(11) NOT NULL,
-  `profile_id` NOT NULL, 
+  `profile_id` varchar(20) NOT NULL, 
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
 );
