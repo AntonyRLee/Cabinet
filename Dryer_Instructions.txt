@@ -5,9 +5,7 @@ Dryer instructions
 2) Load system_control_003.py
 3) Load dht_sensor_test_001.py
 4) Launch pi gpio deamon via terminal - sudo pigpiod
- ) Log into mysql data base via terminal - sudo mysql -u root -p ***
- ) Access dht_series database: use dht_series;
- ) 
-4) Start system_control_003.py when ready to run dryer
-5) When finished stop dryer code
-6) Use dht_sensor_test_001.py to reset pins and humidifier if needed
+5) Start system_control.py when ready to run dryer
+6) When finished stop dryer code
+7) Use dht_sensor_test_001.py to reset pins and humidifier if needed
+8) Use [mysql -h localhost -u root -p dht_series < sql_diagnostics.sql] for diagnostics
