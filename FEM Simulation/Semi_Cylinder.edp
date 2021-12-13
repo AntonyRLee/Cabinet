@@ -1,0 +1,45 @@
+// load relevant modules
+load "msh3" 
+load "medit"
+load "tetgen"
+load "gmsh"
+
+// functions
+func f = 1.;
+func g = 1.;
+
+// Parameters
+int nn = 3; // Mesh quality
+
+// depth of error message detail
+verbosity=2;
+
+// import custom mesh
+mesh3 Th=gmshload3("test_001.msh");
+
+// plot imported mesh
+plot(Th, cmm="Mesh from GMSH",wait=1);
+
+// Fespace
+fespace Vh(Th, P1); // Change P1 to P2 to test P2 finite element
+Vh u, v;
+
+// Macro
+macro grad(u) [dx(u), dy(u), dz(u)]
+
+// Problem
+problem Poisson (u, v, solver=CG, eps=-1.e-6)
+   = int3d(Th)(
+        grad(u)' * grad(v)
+   )
+   - int3d(Th)(
+        f * v
+   )
+   + on(2, u=g)
+;
+
+//solve
+Poisson;
+
+//plot result
+plot(u);
