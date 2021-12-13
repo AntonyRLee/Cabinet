@@ -1,0 +1,1 @@
+This folder contains the FreeFEM code which simulates dynamics within the cabinet
