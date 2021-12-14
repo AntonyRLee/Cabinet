@@ -1,0 +1,191 @@
+\documentclass[11pt,a4paper]{report}
+\usepackage{amsmath}
+\usepackage[retainorgcmds]{IEEEtrantools}
+
+\begin{document}
+\chapter{NS-equations}
+\section{first}
+Consider the following partial differential equation (PDE):
+
+\begin{subequations}
+\label{eq:NS_TP_2D}
+\begin{align}
+        u_{t}+\boldsymbol{\nabla}\cdot\left(-\nu\boldsymbol{\nabla}u \right)+\boldsymbol{u}\cdot\boldsymbol{\nabla}u + p_{x}&=0,         \label{eq:NS_TP_2D_1} \\
+        v_{t}+\boldsymbol{\nabla}\cdot\left(-\nu\boldsymbol{\nabla}v \right)+\boldsymbol{u}\cdot\boldsymbol{\nabla}v + p_{y}&=T,         \label{eq:NS_TP_2D_2} \\
+	u_{x} + v_{y} &=0,         															\label{eq:NS_TP_2D_3} \\
+	T_{t}+\boldsymbol{\nabla}\cdot\left(-\epsilon\boldsymbol{\nabla}T \right)+\boldsymbol{u}\cdot\boldsymbol{\nabla}T &=0,        	\label{eq:NS_TP_2D_4} 	
+\end{align}
+\end{subequations}
+where $\boldsymbol{\nabla}=(\partial_{x},\partial_{y})$ and $\boldsymbol{u}=(u,v)$
+
+We also impose boundary and initial conditions:
+\begin{subequations}
+\label{eq:NS_TP_2D_conditions}
+\begin{align}
+        u_{t}+\boldsymbol{\nabla}\cdot\left(-\nu\boldsymbol{\nabla}u \right)+\boldsymbol{u}\cdot\boldsymbol{\nabla}u + p_{x}&=0,         \label{eq:NS_TP_2D_conditions_1} \\
+        v_{t}+\boldsymbol{\nabla}\cdot\left(-\nu\boldsymbol{\nabla}v \right)+\boldsymbol{u}\cdot\boldsymbol{\nabla}v + p_{y}&=T,         \label{eq:NS_TP_2D_conditions_2} \\
+	u_{x} + v_{y} &=0,         																			      \label{eq:NS_TP_2D_conditions_3} \\
+	T_{t}+\boldsymbol{\nabla}\cdot\left(-\epsilon\boldsymbol{\nabla}T \right)+\boldsymbol{u}\cdot\boldsymbol{\nabla}T &=0,            \label{eq:NS_TP_2D_conditions_4} 	
+\end{align}
+\end{subequations}
+
+Explanation:
+\begin{enumerate}
+\item NS 1
+\item NS 2
+\item continuity equation (with assumption of incompressibility)
+\item energy equation
+\end{enumerate}
+
+A generalised 3D version of the Navier-Stokes equations coupled to the heat transfer of the system is:
+
+\begin{subequations}
+\label{eq:NS_TP_3D}
+\begin{align}
+\boldsymbol{\nabla}\cdot\boldsymbol{u}\,&=\,\boldsymbol{0}  \label{eq:NS_TP_3D_1}\\
+\left(\partial_{t}+\boldsymbol{u}\cdot\boldsymbol{\nabla}\right)\boldsymbol{u}\,&=\,-\frac{1}{\rho}\boldsymbol{\nabla}p+\nu\boldsymbol{\nabla}^{2}\boldsymbol{u}+T\boldsymbol{f}-\boldsymbol{g} \label{eq:NS_TP_3D_2}\\
+\left(\partial_{t}+\boldsymbol{u}\cdot\boldsymbol{\nabla}\right)T\,&=\,\epsilon \boldsymbol{\nabla}^{2}T+\frac{1}{\rho c_{p}}\phi \label{eq:NS_TP_3D_3}
+\end{align}
+\end{subequations}
+where $\boldsymbol{f}=(f_{x},f_{y},f_{z})$ is a source term which couples the velocity field to the temperature of the system and $\boldsymbol{g}$ is the gravitational field acting in the negative $z$ direction, and $\phi$ is a dissipation term which we typically set to zero.
+
+Typical choices are $\boldsymbol{f}=(0,1,0)$ and $\boldsymbol{g}=(0,0,-1)$. 
+
+Reference {https://arxiv.org/pdf/physics/0107033.pdf} gives the 3D version of the Navier stokes with temperature as:
+\begin{subequations}
+\label{eq:NS_TP_3D_002}
+\begin{align}
+\boldsymbol{\nabla}\cdot\boldsymbol{u}\,&=\,\boldsymbol{0}  \label{eq:NS_TP_3D_002_1}\\
+\left(\partial_{t}+\boldsymbol{u}\cdot\boldsymbol{\nabla}\right)\boldsymbol{u}\,&=\,-\frac{1}{\rho}\boldsymbol{\nabla}p+\nu\boldsymbol{\nabla}^{2}\boldsymbol{u} \label{eq:NS_TP_3D_002_2}\\
+\left(\partial_{t}+\boldsymbol{u}\cdot\boldsymbol{\nabla}\right)T\,&=\,\epsilon \boldsymbol{\nabla}^{2}T+\frac{1}{\rho c_{p}}\phi \label{eq:NS_TP_3D_002_3}
+\end{align}
+\end{subequations}
+where $\phi\,=\,\eta\,\Sigma_{i,j}\left(\partial_{i}u_{j}+\partial_{j}u_{i}\right)^{2}$
+
+The above system can be solved in two steps. The first solves for just the velocity vector field $\boldsymbol{u}$ and pressure $p$. Once the velocity field is know it enters the temperature dynamics as time and space dependent coefficients. 
+
+\section{second}
+\subsection{mass}
+\begin{equation}
+\partial_{t}\rho+\boldsymbol{\nabla}\cdot(\rho\boldsymbol{u})\,=\,0
+\end{equation}
+
+\subsection{momentum}
+
+\begin{equation}
+\rho D_{t}\boldsymbol{u}\,=\,-\boldsymbol{\nabla}p+\boldsymbol{\nabla}\cdot\boldsymbol{\tau}+\rho\boldsymbol{g}
+\end{equation}
+
+\subsection{stress tensor (constitutive)}
+\begin{equation}
+\boldsymbol{\tau}\,=\,\lambda(\boldsymbol{\nabla}\cdot\boldsymbol{u})\boldsymbol{I}+2\mu\boldsymbol{\epsilon}
+\end{equation}
+
+\subsection{rate of strain (constitutive)}
+
+\begin{equation}
+\boldsymbol{\epsilon}\,=\,\frac{\boldsymbol{\nabla}\boldsymbol{u}+(\boldsymbol{\nabla}\boldsymbol{u})^{\mathrm{tp}}}{2}
+\end{equation}
+
+\subsection{gradient of vector}
+The gradient of a vector is defined as the transpose of the Jacobian matrix
+\begin{equation}
+\boldsymbol{\nabla}\boldsymbol{u}\,=\,\boldsymbol{J}^{\mathrm{tp}}
+\end{equation}
+	
+\subsection{material derivative}
+If the mass continuity equation holds, the following relation can be written
+\begin{equation}
+\rho D_{t}\boldsymbol{u}\,=\,\partial_{t}(\rho\boldsymbol{u})+\boldsymbol{\nabla}\cdot\left(\rho\boldsymbol{u}\otimes\boldsymbol{u}\right)
+\end{equation}
+
+\subsection{stress divergence}
+If $\mu$ and $\lambda$ are constants,
+\begin{equation}
+\boldsymbol{\nabla}\cdot\boldsymbol{\tau}\,=\,\mu\boldsymbol{\nabla}^{2}\boldsymbol{u}+(\mu+\lambda)\boldsymbol{\nabla}\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)
+\end{equation}
+
+\section{third}
+
+
+
+\section{numerics}
+
+For numerical estimations, we typically need what is known as the weak form of the differential equations. This recasts the equations in terms of optimising an integral equation for some specifically defined space of piecewise test functions. 
+
+\subsection{double dot product}
+Given two matrices, we define the double dot product as
+\begin{equation}
+\boldsymbol{A}:\boldsymbol{B}\,\dot{=}\,\mathrm{tr}\boldsymbol{A}\boldsymbol{B}^{\mathrm{tp}}
+\end{equation}
+
+\subsection{divergence identities}
+
+To convert the differential Navier-Stokes equations to their weak formulation, we need the following divergence identities
+
+%\begin{equation}
+%\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}^{2}\boldsymbol{u}\right)\cdot\boldsymbol{v}\,=\,-\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}\boldsymbol{u}\right):\left(\boldsymbol{\nabla}\boldsymbol{v}\right)+\int_{\Gamma}\mathrm{d}\Gamma \left(\boldsymbol{\nabla}\boldsymbol{u}\cdot\boldsymbol{n}\right)\cdot\boldsymbol{v}
+%\end{equation}
+%
+%\begin{equation}
+%\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}p\right)\cdot\boldsymbol{v}\,=\,-\int_{\Omega}\mathrm{d}\Omega \,p\left(\boldsymbol{\nabla}\cdot\boldsymbol{v}\right)+\int_{\Gamma}\mathrm{d}\Gamma \,p\left(\boldsymbol{v}\cdot\boldsymbol{n}\right)
+%\end{equation}
+%
+%\begin{equation}
+%\int_{\Omega}\mathrm{d}\Omega\left\lbrace\boldsymbol{\nabla}\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)\right\rbrace\cdot\boldsymbol{v}\,=\,-\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)\left(\boldsymbol{\nabla}\cdot\boldsymbol{v}\right)+\int_{\Gamma}\mathrm{d}\Gamma \left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)\left(\boldsymbol{v}\cdot\boldsymbol{n}\right)
+%\end{equation}
+%
+%\begin{equation}
+%\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)q\,=\,-\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{u}\cdot\boldsymbol{\nabla}q\right)+\int_{\Gamma}\mathrm{d}\Gamma \,q \left(\boldsymbol{u}\cdot\boldsymbol{n}\right)
+%\end{equation}
+
+\begin{align*}
+&\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}^{2}\boldsymbol{u}\right)\cdot\boldsymbol{v}&&\,=\, -\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}\boldsymbol{u}\right):\left(\boldsymbol{\nabla}\boldsymbol{v}\right)
+&&+\int_{\Gamma}\mathrm{d}\Gamma \left(\boldsymbol{\nabla}\boldsymbol{u}\cdot\boldsymbol{n}\right)\cdot\boldsymbol{v} \\
+&\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}p\right)\cdot\boldsymbol{v}&&\,=\, -\int_{\Omega}\mathrm{d}\Omega \,p\left(\boldsymbol{\nabla}\cdot\boldsymbol{v}\right)&&+\int_{\Gamma}\mathrm{d}\Gamma \,p\left(\boldsymbol{v}\cdot\boldsymbol{n}\right) \\
+&\int_{\Omega}\mathrm{d}\Omega\left\lbrace\boldsymbol{\nabla}\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)\right\rbrace\cdot\boldsymbol{v}&&\,=\, -\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)\left(\boldsymbol{\nabla}\cdot\boldsymbol{v}\right)&&+\int_{\Gamma}\mathrm{d}\Gamma \left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)\left(\boldsymbol{v}\cdot\boldsymbol{n}\right) \\
+&\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)q &&\,=\, -\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{u}\cdot\boldsymbol{\nabla}q\right)&&+\int_{\Gamma}\mathrm{d}\Gamma \,q \left(\boldsymbol{u}\cdot\boldsymbol{n}\right)
+\end{align*}
+
+\subsection{weak form}
+
+Applying the divergence theorem to each term in the Navier-Stokes equation we have the weak form
+
+\begin{subequations}
+\begin{align}
+&\int_{\Omega}\mathrm{d}\Omega\, q\left(\partial_{t}\rho+\boldsymbol{\nabla}\cdot(\rho\boldsymbol{u})\right) \\
+&=\,\int_{\Omega}\mathrm{d}\Omega\left(q\partial_{t}\rho-\rho\boldsymbol{u}\cdot\boldsymbol{\nabla}q\right)+\int_{\Gamma}\mathrm{d}\Gamma q\rho\boldsymbol{u}\cdot\boldsymbol{n}
+\end{align}
+\end{subequations}
+
+\begin{subequations}
+\begin{align}
+&\rho\int_{\Omega}\mathrm{d}\Omega\left(\,D_{t}\boldsymbol{u}-\boldsymbol{g}\right)\cdot\boldsymbol{v}\\
+&=\,-\mu\int_{\Omega}\mathrm{d}\Omega\,\boldsymbol{\nabla}
+\boldsymbol{u}:\boldsymbol{\nabla}
+\boldsymbol{v}-\int_{\Omega}\mathrm{d}\Omega\,p\boldsymbol{\nabla}
+\cdot\boldsymbol{v}-(\mu+\lambda)\int_{\Omega}\mathrm{d}\Omega (\boldsymbol{\nabla}\cdot\boldsymbol{u})(\boldsymbol{\nabla}\cdot\boldsymbol{v}) \\
+&\,+\,\mu\int_{\Gamma}\mathrm{d}\Gamma(\boldsymbol{\nabla}\boldsymbol{u}\cdot\boldsymbol{n})\cdot\boldsymbol{v}+\int_{\Gamma}\mathrm{d}\Gamma p (\boldsymbol{v}\cdot\boldsymbol{n})+(\mu+\lambda)\int_{\Gamma}\mathrm{d}\Gamma (\boldsymbol{\nabla}\cdot\boldsymbol{u})(\boldsymbol{v}\cdot\boldsymbol{n})
+\end{align}
+\end{subequations}
+
+\subsection{incompressible, sourceless, dirichlet boundaries}
+
+In the case that all boundaries are Dirichlet, i.e. $\boldsymbol{v}|_{\Gamma}=\boldsymbol{0}$ and $q|_{\Gamma}=0$, we can write
+
+\begin{subequations}
+\begin{align}
+\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}\cdot\boldsymbol{u}\right)q &\,=\, 0
+\end{align}
+\end{subequations}
+
+\begin{subequations}
+\begin{align}
+\rho\int_{\Omega}\mathrm{d}\Omega\left(\,D_{t}\boldsymbol{u}\right)\cdot\boldsymbol{v}
+=\,-\mu\int_{\Omega}\mathrm{d}\Omega\,\boldsymbol{\nabla}
+\boldsymbol{u}:\boldsymbol{\nabla}
+\boldsymbol{v}+\int_{\Omega}\mathrm{d}\Omega\left(\boldsymbol{\nabla}p\right)\cdot\boldsymbol{v}
+\end{align}
+\end{subequations}
+
+\end{document}
