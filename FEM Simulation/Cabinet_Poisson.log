@@ -1,0 +1,63 @@
+-- FreeFem++ v4.9 (Tue, Apr 20, 2021 12:10:29 AM - git v4.9)
+ Load: lg_fem lg_mesh lg_mesh3 eigenvalue
+    1 : // load relevant modules
+    2 : load "msh3"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\msh3 = 0)
+    3 : load "medit"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\medit = 0)
+    4 : load "tetgen"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\tetgen = 0) load: tetgen
+ 
+    5 : load "gmsh"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\gmsh = 0)
+    6 :
+    7 : // functions
+    8 : func f = 1.;
+    9 : func g = 1.;
+   10 :
+   11 : // Parameters
+   12 : int nn = 3; // Mesh quality
+   13 :
+   14 : // depth of error message detail
+   15 : verbosity=2;
+   16 :
+   17 : // import custom mesh
+   18 : mesh3 Th=gmshload3("Cabinet_Geometry.msh");
+   19 :
+   20 : // plot imported mesh
+   21 : plot(Th, cmm="Mesh from GMSH",wait=1);
+   22 :
+   23 : // Fespace
+   24 : fespace Vh(Th, P1); // Change P1 to P2 to test P2 finite element
+   25 : Vh u, v;
+   26 :
+   27 : // Macro
+   30 #  )  // Problem[dx(u), dy(u), dz(u)]
+   31 : problem Poisson (u, v, solver=CG, eps=-1.e-6)
+   32 :    = int3d(Th)(
+   33 :         grad(u)
+   29 @
+   30 @  [dx(u), dy(u), dz(u)]
+   29 @
+   30 @ ' * grad(v)
+   29 @
+   30 @  [dx(v), dy(v), dz(v)]
+   29 @
+   30 @
+   34 :    )
+   35 :    - int3d(Th)(
+   36 :         f * v
+   37 :    )
+   38 :    + on(1, u= -2.0*g)
+   39 :    + on(2, u= g)
+   40 : ;
+   41 :
+   42 : //solve
+   43 : Poisson;
+   44 :
+   45 : //plot result
+   46 : plot(u);
+   47 :
+   48 : // mesh volume
+   49 : real vol = int3d(Th,37)(1.) ;
+   50 :
+   51 : cout << "mesh volume " << vol << endl; sizestack + 1024 =1752  ( 728 )
+ 
+Unable to open file Cabinet_Geometry.msh
+ try getConsole C:\Users\sarao\OneDrive\Development\Cabinet\FEM Simulation\Cabinet_Poisson.edp
