@@ -60,4 +60,4 @@
    51 : cout << "mesh volume " << vol << endl; sizestack + 1024 =1752  ( 728 )
  
 Unable to open file Cabinet_Geometry.msh
- try getConsole C:\Users\sarao\OneDrive\Development\Cabinet\FEM Simulation\Cabinet_Poisson.edp
+ try getConsole C:\Users\sarao\OneDrive\Development\Cabinet\Finite Element Method\Cabinet_Poisson.edp
