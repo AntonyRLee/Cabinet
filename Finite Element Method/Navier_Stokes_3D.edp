@@ -5,70 +5,89 @@ load "msh3"
 load "medit"
 load "tetgen"
 load "gmsh"
+load "UMFPACK64"
+// load "MUMPS"
 
 //Parameters
 real uMax = 10.;
 
-real Rho = 1.;
-real Mu = 1.;
+real Rho = 500.;
+real Mu = 0.1;
 
-func fx = 0.;
-func fy = 0.;
+func fx = -1.;
+func fy = -1.;
+func fz = +1.;
 
-real T = 1.;
-real dt = 1.e-1;
+real T = 10.;
+real dt = 1.;
 
-mesh3 Th=gmshload3("..\\Geometry\\Navier_Stokes_Cube.msh");
-
+mesh3 Th = gmshload3("..\\Geometry\\Navier_Stokes_Cube.msh");
 plot(Th);
 
-// //Fespace
-// fespace Uh(Th, [P2, P2]);
-// Uh [ux, uy];
-// Uh [upx, upy];
-// Uh [vx, vy];
+//Fespace
+fespace Uh(Th, [P2, P2, P2]);
+Uh [ux, uy, uz];
+Uh [upx, upy, upz];
+Uh [vx, vy, vz];
 
-// fespace Ph(Th, P1);
-// Ph p;
-// Ph q;
+fespace Ph(Th, P1);
+Ph p;
+Ph q;
 
-// //Macro
-// macro grad(u) [dx(u), dy(u)] //
-// macro Grad(U) [grad(U#x), grad(U#y)]//
-// macro div(ux, uy) (dx(ux) + dy(uy)) //
-// macro Div(U) div(U#x, U#y) //
+//Macro
+macro grad(u) [dx(u), dy(u), dz(u)] //
+macro Grad(U) [grad(U#x), grad(U#y), grad(U#z)]//
+macro div(ux, uy, uz) (dx(ux) + dy(uy) + dz(uz)) //
+macro Div(U) div(U#x, U#y, U#z) //
 
-// //Function
+//Function
 // func uIn = uMax * (1.-(y-D/2.)^2/(D/2.)^2);
 
-// //Problem
-// problem NS ([ux, uy, p],[vx, vy, q])
-	// = int2d(Th)(
-		  // (Rho/dt) * [ux, uy]' * [vx, vy]
-		// + Mu * (Grad(u) : Grad(v))
+//Problem
+int ii=0;
+// problem NS ([ux, uy, uz, p], [vx, vy, vz, q], solver=sparsesolver, init=ii)
+problem NS ([ux, uy, uz], [vx, vy, vz], solver=sparsesolver, init=ii)
+	= int3d(Th)(
+		  (Rho/dt) * [ux, uy, uz]' * [vx, vy, vz]
+		+ Mu * (Grad(u) : Grad(v))
 		// - p * Div(v)
 		// - Div(u) * q
-	// )
-	// - int2d(Th)(
-		  // (Rho/dt) * [	convect([upx, upy], -dt, upx), 
-						// convect([upx, upy], -dt, upy)
-					 // ]'*[vx,vy]
-		// + [fx, fy]' * [vx, vy]
-	// )
-	// + on(Inlet, ux=uIn, uy=0.)
-	// + on(Wall, ux=0., uy=0.)
-	// ;
+		// -  1e-6*p*q
+	)
+	- int3d(Th)(
+		  // (Rho/dt) * [	convect([upx, upy, upz], -dt, upx), 
+						// convect([upx, upy, upz], -dt, upy), 
+						// convect([upx, upy, upz], -dt, upz)
+					 // ]'*[vx,vy,vz]
+		 [fx, fy, fz]' *[vx, vy,vz]
+	)
+	+ on(16, ux=0., uy=0., uz=5.)
+	+ on(17, ux=0., uy=0., uz=0.)
+	;
 
-// // Time loop
-// int nbiter = T / dt;
-// for (int i = 0; i < nbiter; i++) {
-	// // Update
-	// [upx, upy] = [ux, uy];
+//Initialization
+[ux, uy, uz] = [0, 0, 0];
+// p = 0;
 
-	// // Solve
-	// NS;
+// Time loop
+int nbiter = T / dt;
+for (int i = 0; i < nbiter; i++) {
+	
+	cout << "ux min " <<  ux[].min << "\n";
+	cout << "uy min " <<  uy[].min << "\n";
+	cout << "uz min " <<  uz[].min << "\n";
+	// cout << "p min "  <<   p[].min << "\n";
+	
+	// Update
+	[upx, upy, upz] = [ux, uy, uz];
 
-	// //Plot
-	// //plot(p, cmm="Pressure - i="+i);
-	// plot([ux, uy], cmm="Velocity - i="+i);
-// }
+	// Solve
+	NS;
+
+	//Plot
+	// plot(p, cmm="Pressure - i="+i);
+	// plot([ux, uy, uz], cmm="Velocity - i="+i);
+	plot(ux, cmm="Ux velocity - i="+i);
+
+}
+
