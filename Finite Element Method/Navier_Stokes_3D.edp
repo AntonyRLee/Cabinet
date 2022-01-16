@@ -1,82 +1,93 @@
 // https://modules.freefem.org/modules/navier-stokes/
 
+// load relevant modules
+load "msh3" 
+load "medit"
+load "tetgen"
+load "gmsh"
+load "UMFPACK64"
+// load "MUMPS"
+
 //Parameters
 real uMax = 10.;
 
-real Rho = 1.;
-real Mu = 1.;
+real Rho = 500.;
+real Mu = 0.1;
 
-func fx = 0.;
-func fy = 0.;
+func fx = -1.;
+func fy = -1.;
+func fz = +1.;
 
-real T = 1.;
-real dt = 1.e-1;
+real T = 10.;
+real dt = 1.;
 
-//Mesh
-int nn = 10;	//Mesh quality
-real L = 5.;	//Pipe length
-real D = 1.;	//Pipe height
-int Wall = 1;	//Pipe wall label
-int Inlet = 2;	//Pipe inlet label
-int Outlet = 3;	//Pipe outlet label
-
-border b1(t=0., 1.){x=L*t; y=0.; label=Wall;};
-border b2(t=0., 1.){x=L; y=D*t; label=Outlet;};
-border b3(t=0., 1.){x=L-L*t; y=D; label=Wall;};
-border b4(t=0., 1.){x=0.; y=D-D*t; label=Inlet;};
-
-int nnL = max(2., L*nn);
-int nnD = max(2., D*nn);
-
-mesh Th = buildmesh(b1(nnL) + b2(nnD) + b3(nnL) + b4(nnD));
+mesh3 Th = gmshload3("..\\Geometry\\Navier_Stokes_Cube.msh");
+plot(Th);
 
 //Fespace
-fespace Uh(Th, [P2, P2]);
-Uh [ux, uy];
-Uh [upx, upy];
-Uh [vx, vy];
+fespace Uh(Th, [P2, P2, P2]);
+Uh [ux, uy, uz];
+Uh [upx, upy, upz];
+Uh [vx, vy, vz];
 
 fespace Ph(Th, P1);
 Ph p;
 Ph q;
 
 //Macro
-macro grad(u) [dx(u), dy(u)] //
-macro Grad(U) [grad(U#x), grad(U#y)]//
-macro div(ux, uy) (dx(ux) + dy(uy)) //
-macro Div(U) div(U#x, U#y) //
+macro grad(u) [dx(u), dy(u), dz(u)] //
+macro Grad(U) [grad(U#x), grad(U#y), grad(U#z)]//
+macro div(ux, uy, uz) (dx(ux) + dy(uy) + dz(uz)) //
+macro Div(U) div(U#x, U#y, U#z) //
 
 //Function
-func uIn = uMax * (1.-(y-D/2.)^2/(D/2.)^2);
+// func uIn = uMax * (1.-(y-D/2.)^2/(D/2.)^2);
 
 //Problem
-problem NS ([ux, uy, p],[vx, vy, q])
-	= int2d(Th)(
-		  (Rho/dt) * [ux, uy]' * [vx, vy]
+int ii=0;
+// problem NS ([ux, uy, uz, p], [vx, vy, vz, q], solver=sparsesolver, init=ii)
+problem NS ([ux, uy, uz], [vx, vy, vz], solver=sparsesolver, init=ii)
+	= int3d(Th)(
+		  (Rho/dt) * [ux, uy, uz]' * [vx, vy, vz]
 		+ Mu * (Grad(u) : Grad(v))
-		- p * Div(v)
-		- Div(u) * q
+		// - p * Div(v)
+		// - Div(u) * q
+		// -  1e-6*p*q
 	)
-	- int2d(Th)(
-		  (Rho/dt) * [	convect([upx, upy], -dt, upx), 
-						convect([upx, upy], -dt, upy)
-					 ]'*[vx,vy]
-		+ [fx, fy]' * [vx, vy]
+	- int3d(Th)(
+		  // (Rho/dt) * [	convect([upx, upy, upz], -dt, upx), 
+						// convect([upx, upy, upz], -dt, upy), 
+						// convect([upx, upy, upz], -dt, upz)
+					 // ]'*[vx,vy,vz]
+		 [fx, fy, fz]' *[vx, vy,vz]
 	)
-	+ on(Inlet, ux=uIn, uy=0.)
-	+ on(Wall, ux=0., uy=0.)
+	+ on(16, ux=0., uy=0., uz=5.)
+	+ on(17, ux=0., uy=0., uz=0.)
 	;
+
+//Initialization
+[ux, uy, uz] = [0, 0, 0];
+// p = 0;
 
 // Time loop
 int nbiter = T / dt;
 for (int i = 0; i < nbiter; i++) {
+	
+	cout << "ux min " <<  ux[].min << "\n";
+	cout << "uy min " <<  uy[].min << "\n";
+	cout << "uz min " <<  uz[].min << "\n";
+	// cout << "p min "  <<   p[].min << "\n";
+	
 	// Update
-	[upx, upy] = [ux, uy];
+	[upx, upy, upz] = [ux, uy, uz];
 
 	// Solve
 	NS;
 
 	//Plot
-	//plot(p, cmm="Pressure - i="+i);
-	plot([ux, uy], cmm="Velocity - i="+i);
+	// plot(p, cmm="Pressure - i="+i);
+	// plot([ux, uy, uz], cmm="Velocity - i="+i);
+	plot(ux, cmm="Ux velocity - i="+i);
+
 }
+

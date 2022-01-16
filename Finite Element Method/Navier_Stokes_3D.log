@@ -2,120 +2,140 @@
  Load: lg_fem lg_mesh lg_mesh3 eigenvalue
     1 : // https://modules.freefem.org/modules/navier-stokes/
     2 :
-    3 : //Parameters
-    4 : real uMax = 10.;
-    5 :
-    6 : real Rho = 1.;
-    7 : real Mu = 1.;
-    8 :
-    9 : func fx = 0.;
-   10 : func fy = 0.;
-   11 :
-   12 : real T = 1.;
-   13 : real dt = 1.e-1;
-   14 :
-   15 : //Mesh
-   16 : int nn = 10;    //Mesh quality
-   17 : real L = 5.;    //Pipe length
-   18 : real D = 1.;    //Pipe height
-   19 : int Wall = 1;   //Pipe wall label
-   20 : int Inlet = 2;  //Pipe inlet label
-   21 : int Outlet = 3; //Pipe outlet label
-   22 :
-   23 : border b1(t=0., 1.){x=L*t; y=0.; label=Wall;};
-   24 : border b2(t=0., 1.){x=L; y=D*t; label=Outlet;};
-   25 : border b3(t=0., 1.){x=L-L*t; y=D; label=Wall;};
-   26 : border b4(t=0., 1.){x=0.; y=D-D*t; label=Inlet;};
-   27 :
-   28 : int nnL = max(2., L*nn);
-   29 : int nnD = max(2., D*nn);
-   30 :
-   31 : mesh Th = buildmesh(b1(nnL) + b2(nnD) + b3(nnL) + b4(nnD));
-   32 :
-   33 : //Fespace
-   34 : fespace Uh(Th, [P2, P2]);
-   35 : Uh [ux, uy];
-   36 : Uh [upx, upy];
-   37 : Uh [vx, vy];
-   38 :
-   39 : fespace Ph(Th, P1);
-   40 : Ph p;
-   41 : Ph q;
-   42 :
-   43 : //Macro
-   44 : macro grad(u) [dx(u), dy(u)]  )  //
-   45 : macro Grad(U) [grad(U#x), grad(U#y)] )  //
-   46 : macro div(ux, uy) (dx(ux) + dy(uy))  )  //
-   47 : macro Div(U) div(U#x, U#y)  )  //
-   48 :
-   49 : //Function
-   50 : func uIn = uMax * (1.-(y-D/2.)^2/(D/2.)^2);
-   51 :
-   52 : //Problem
-   53 : problem NS ([ux, uy, p],[vx, vy, q])
-   54 :         = int2d(Th)(
-   55 :                   (Rho/dt) * [ux, uy]' * [vx, vy]
-   56 :                 + Mu * (Grad(u)   [grad(ux)    [dx(ux), dy(ux)] , grad(uy)    [dx(uy), dy(uy)] ] : Grad(v)   [grP{ad(vx)    [dx(vx), dy(vx)] , grad(vy)    [dx(vy), dy(vy)] ])
-   57 :                 - p * Div(v)    div(vx, vy)     (dx(vx) + dy( vy))
-   58 :                 - Div(u)    div(ux, uy)     (dx(ux) + dy( uy))   * q
-   59 :         )
-   60 :         - int2d(Th)(
-   61 :                   (Rho/dt) * [  convect([upx, upy], -dt, upx),
-   62 :                                                 convect([upx, upy], -dt, upy)
-   63 :                                          ]'*[vx,vy]
-   64 :                 + [fx, fy]' * [vx, vy]
-   65 :         )
-   66 :         + on(Inlet, ux=uIn, uy=0.)
-   67 :         + on(Wall, ux=0., uy=0.)
-   68 :         ;
-   69 :
-   70 : // Time loop
-   71 : int nbiter = T / dt;
-   72 : for (int i = 0; i < nbiter; i++) {
-   73 :         // Update
-   74 :         [upx, upy] = [ux, uy];
-   75 :
-   76 :         // Solve
-   77 :         NS;
-   78 :
-   79 :         //Plot
-   80 :         //plot(p, cmm="Pressure - i="+i);
-   81 :         plot([ux, uy], cmm="Velocity - i="+i);
-   82 : } sizestack + 1024 =2848  ( 1824 )
+    3 : // load relevant modules
+    4 : load "msh3"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\msh3 = 0)
+    5 : load "medit"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\medit = 0)
+    6 : load "tetgen"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\tetgen = 0) load: tetgen
  
-  --  mesh:  Nb of Triangles =   1068, Nb of Vertices 595
+    7 : load "gmsh"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\gmsh = 0)
+    8 : load "UMFPACK64"(load: loadLibary C:\Program Files (x86)\FreeFem++\\.\UMFPACK64 = 0)
+    9 : // load "MUMPS"
+   10 :
+   11 : //Parameters
+   12 : real uMax = 10.;
+   13 :
+   14 : real Rho = 500.;
+   15 : real Mu = 0.1;
+   16 :
+   17 : func fx = -1.;
+   18 : func fy = -1.;
+   19 : func fz = +1.;
+   20 :
+   21 : real T = 10.;
+   22 : real dt = 1.;
+   23 :
+   24 : mesh3 Th = gmshload3("..\Geometry\Navier_Stokes_Cube.msh");
+   25 : plot(Th);
+   26 :
+   27 : //Fespace
+   28 : fespace Uh(Th, [P2, P2, P2]);
+   29 : Uh [ux, uy, uz];
+   30 : Uh [upx, upy, upz];
+   31 : Uh [vx, vy, vz];
+   32 :
+   33 : fespace Ph(Th, P1);
+   34 : Ph p;
+   35 : Ph q;
+   36 :
+   37 : //Macro
+   38 : macro grad(u) [dx(u), dy(u), dz(u)]  )  //
+   39 : macro Grad(U) [grad(U#x), grad(U#y), grad(U#z)] )  //
+   40 : macro div(ux, uy, uz) (dx(ux) + dy(uy) + dz(uz))  )  //
+   41 : macro Div(U) div(U#x, U#y, U#z)  )  //
+   42 :
+   43 : //Function
+   44 : // func uIn = uMax * (1.-(y-D/2.)^2/(D/2.)^2);
+   45 :
+   46 : //Problem
+   47 : int ii=0;
+   48 : // problem NS ([ux, uy, uz, p], [vx, vy, vz, q], solver=sparsesolver, init=ii)
+   49 : problem NS ([ux, uy, uz], [vx, vy, vz], solver=sparsesolver, init=ii)
+   50 :         = int3d(Th)(
+   51 :                   (Rho/dt) * [ux, uy, uz]' * [vx, vy, vz]
+   52 :                 + Mu * (Grad(u)    [grad(ux)     [dx(ux), dy(ux), dz(ux)] , grad(uy)     [dx(uy), dy(uy), dz(uy)] , grad(uz)     [dx(uz), dy(uz), dz(uz)] ] : Grad(v)    [grad(vx)     [dx(vx), dy(vx), dz(vx)] , grad(vy)     [dx(vy),
+dy(vy), dz(vy)] , grad(vz)     [dx(vz), dy(vz), dz(vz)] ])
+   53 :                 // - p * Div(v)
+   54 :                 // - Div(u) * q
+   55 :                 // -  1e-6*p*q
+   56 :         )
+   57 :         - int3d(Th)(
+   58 :                   // (Rho/dt) * [       convect([upx, upy, upz], -dt, upx),
+   59 :                                                 // convect([upx, upy, upz], -dt, upy),
+   60 :                                                 // convect([upx, upy, upz], -dt, upz)
+   61 :                                          // ]'*[vx,vy,vz]
+   62 :                  [fx, fy, fz]' *[vx, vy,vz]
+   63 :         )
+   64 :         + on(16, ux=0., uy=0., uz=5.)
+   65 :         + on(17, ux=0., uy=0., uz=0.)
+   66 :         ;
+   67 :
+   68 : //Initialization
+   69 : [ux, uy, uz] = [0, 0, 0];
+   70 : // p = 0;
+   71 :
+   72 : // Time loop
+   73 : int nbiter = T / dt;
+   74 : for (int i = 0; i < nbiter; i++) {
+   75 :
+   76 :         cout << "ux min " <<  ux[].min << "\n";
+   77 :         cout << "uy min " <<  uy[].min << "\n";
+   78 :         cout << "uz min " <<  uz[].min << "\n";
+   79 :         // cout << "p min "  <<   p[].min << "\n";
+   80 :
+   81 :         // Update
+   82 :         [upx, upy, upz] = [ux, uy, uz];
+   83 :
+   84 :         // Solve
+   85 :         NS;
+   86 :
+   87 :         //Plot
+   88 :         // plot(p, cmm="Pressure - i="+i);
+   89 :         // plot([ux, uy, uz], cmm="Velocity - i="+i);
+   90 :         plot(ux, cmm="Ux velocity - i="+i);
+   91 :
+   92 : }
+   93 :
+   94 :  sizestack + 1024 =2648  ( 1624 )
+ 
+8151 tetrahedrons
+2232 triangles
+10383 numElements
+  Plot::  Sorry no ps version for this type of plot 5
+  -- Build Nodes/DF on mesh :   n.v. 1919, n. elmt. 8151, n b. elmt. 2232
+     nb of Nodes 13103    nb of DoF   39309  DFon=3300
+  -- FESpace: Nb of Nodes 13103 Nb of DoF 39309
+  -- FESpace: Nb of Nodes 1919 Nb of DoF 1919
+ux min 0
+uy min 0
+uz min 0
   -- Solve :
-          min -0.165362  max 10
-          min -0.0904079  max 801.316
+          min -1.09414  max 5
+  Plot::  Sorry no ps version for this type of plot 6
+ux min -1.09414
+uy min -1.09414
+uz min -1.09414
   -- Solve :
-          min -0.00812104  max 10
-          min -0.000822589  max 402.201
+          min -1.09414  max 5
+  Plot::  Sorry no ps version for this type of plot 6
+ux min -1.09414
+uy min -1.09414
+uz min -1.09414
   -- Solve :
-          min -0.000524804  max 10
-          min -5.94338e-05  max 400.145
+          min -1.09414  max 5
+  Plot::  Sorry no ps version for this type of plot 6
+ux min -1.09414
+uy min -1.09414
+uz min -1.09414
   -- Solve :
-          min -3.90944e-05  max 10
-          min -5.42379e-06  max 400.009
+          min -1.09414  max 5
+  Plot::  Sorry no ps version for this type of plot 6
+ux min -1.09414
+uy min -1.09414
+uz min -1.09414
   -- Solve :
-          min -3.41886e-06  max 10
-          min -1.91917e-06  max 400
-  -- Solve :
-          min -3.50615e-07  max 10
-          min -1.74365e-06  max 400
-  -- Solve :
-          min -3.60925e-08  max 10
-          min -2.02341e-07  max 400
-  -- Solve :
-          min -3.2136e-09  max 10
-          min -2.24961e-08  max 400
-  -- Solve :
-          min -2.59592e-10  max 10
-          min -1.33329e-09  max 400
-  -- Solve :
-          min -1.43332e-10  max 10
-          min -4.07031e-10  max 400
-times: compile 0.264s, execution 3.061s,  mpirank:0
- ######## We forget of deleting   40855 Nb pointer,   0Bytes  ,  mpirank 0, memory leak =0
- CodeAlloc : nb ptr  3925,  size :502168 mpirank: 0
-Ok: Normal End
- try getConsole C:\Users\sarao\OneDrive\Development\Cabinet\FEM Simulation\Navier_Stokes_3D.edp
+          min -1.09414  max 5
+  Plot::  Sorry no ps version for this type of plot 6
+ux min -1.09414
+uy min -1.09414
+uz min -1.09414
+ try getConsole C:\Users\sarao\OneDrive\Development\Cabinet\Finite Element Method\Navier_Stokes_3D.edp
