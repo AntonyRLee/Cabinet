@@ -1,0 +1,69 @@
+// imports
+load "msh3"
+
+// Parameters
+real nu = 0.1;
+real T=1.;
+real dt = 0.1;
+
+// Mesh
+// mesh Th = square(10, 10);
+mesh3 Th = cube(10,10,10);
+
+// Fespace
+fespace Vh(Th, [P2,P2,P2]);
+// Vh u, v;
+// Vh uu, vv;
+// Vh uold=0, vold=0;
+Vh [u, v, w];
+Vh [uu, vv, ww];
+Vh [uold, vold, wold]=[0,0,0];
+
+fespace Qh(Th, P1);
+Qh p;
+Qh pp;
+
+// Functions
+func fx = -1.;
+func fy = -1.;
+func fz = +1.;
+
+//Macro
+macro grad(u) [dx(u), dy(u), dz(u)] //
+macro Grad(U) [grad(U#x), grad(U#y), grad(U#z)]//
+macro div(ux, uy, uz) (dx(ux) + dy(uy) + dz(uz)) //
+macro Div(U) div(U#x, U#y, U#z) //
+
+// Problem
+// problem stokes (u, v, p, uu, vv, pp)
+    // = int2d(Th)(
+problem stokes ([u, v, w, p], [uu, vv, ww, pp])
+    = int3d(Th)(
+          (u*uu+v*vv+w*ww)/dt
+        + nu*(
+				dx(u)*dx(uu) + dy(u)*dy(uu) + dz(u)*dz(uu)
+			  + dx(v)*dx(vv) + dy(v)*dy(vv) + dz(v)*dz(vv)
+			  + dx(w)*dx(ww) + dy(w)*dy(ww) + dz(w)*dz(ww)
+			  )
+		- p*(dx(uu) + dy(vv) + dz(ww))
+        - pp*(dx(u) + dy(v) + dz(w))
+		- p*pp*1.e-6
+    )
+    - int3d(Th)(
+          (uold*uu+vold*vv+wold*ww)/dt
+		  +[fx, fy, fz]' *[uu,vv,ww])
+    + on(1, 2, 4, u=0, v=0, w=0)
+    + on(3, 5, 6, u=9, v=0, w=0)
+    ;
+
+// Time loop
+int m, M = T/dt;
+for(m = 0; m < M; m++){
+    stokes;
+	[uold, vold, wold] = [u, v, w];
+	// plot(p, [u, v], value=true, wait=false, cmm="t="+m*dt);
+	plot(p, value=true, wait=false, cmm="t="+m*dt);
+}
+
+// Plot
+// plot(p, [u, v], value=true, wait=true, cmm="t="+m*dt);

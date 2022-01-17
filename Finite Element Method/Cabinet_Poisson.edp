@@ -15,7 +15,7 @@ int nn = 3; // Mesh quality
 verbosity=2;
 
 // import custom mesh
-mesh3 Th=gmshload3("Cabinet_Geometry.msh");
+mesh3 Th=gmshload3("..\\Geometry\\Navier_Stokes_Cube.msh");
 
 // plot imported mesh
 plot(Th, cmm="Mesh from GMSH",wait=1);
